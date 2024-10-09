@@ -210,19 +210,19 @@ else
     echo "picofly_toolbox_0.2" >> ../description.txt
 fi
 
-### Fetch latest Lockpick_RCM.bin from https://github.com/Decscots/Lockpick_RCM/releases/latest
-curl -sL https://api.github.com/repos/Decscots/Lockpick_RCM/releases/latest \
-  | jq '.tag_name' \
-  | xargs -I {} echo Lockpick_RCM {} >> ../description.txt
-curl -sL https://api.github.com/repos/Decscots/Lockpick_RCM/releases/latest \
-  | jq '.assets' | jq '.[0].browser_download_url' \
-  | xargs -I {} curl -sL {} -o Lockpick_RCM.bin
-if [ $? -ne 0 ]; then
-    echo "Lockpick_RCM download\033[31m failed\033[0m."
-else
-    echo "Lockpick_RCM download\033[32m success\033[0m."
-    mv Lockpick_RCM.bin ./bootloader/payloads
-fi
+# ### Fetch latest Lockpick_RCM.bin from https://github.com/Decscots/Lockpick_RCM/releases/latest
+# curl -sL https://api.github.com/repos/Decscots/Lockpick_RCM/releases/latest \
+#   | jq '.tag_name' \
+#   | xargs -I {} echo Lockpick_RCM {} >> ../description.txt
+# curl -sL https://api.github.com/repos/Decscots/Lockpick_RCM/releases/latest \
+#   | jq '.assets' | jq '.[0].browser_download_url' \
+#   | xargs -I {} curl -sL {} -o Lockpick_RCM.bin
+# if [ $? -ne 0 ]; then
+#     echo "Lockpick_RCM download\033[31m failed\033[0m."
+# else
+#     echo "Lockpick_RCM download\033[32m success\033[0m."
+#     mv Lockpick_RCM.bin ./bootloader/payloads
+# fi
 
 ### Fetch latest hwfly_toolbox.bin from https://github.com/hwfly-nx/hwfly-toolbox/releases/latest
 curl -sL https://api.github.com/repos/hwfly-nx/hwfly-toolbox/releases/latest \
