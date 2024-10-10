@@ -50,7 +50,7 @@ jobs:
     - name: Create release
       uses: ncipollo/release-action@v1
       with:
-        name: ${{ env.DATE }} ❤️ | 大气层雪的整合包 感谢九夏的脚本
+        name: ${{ env.DATE }} ❤️ | 熬粥的大气层整合包 感谢九夏的脚本
         allowUpdates: true
         tag: ${{ env.tag_name }}
         commit: main
