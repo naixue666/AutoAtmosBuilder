@@ -84,27 +84,33 @@ if [[ $(date -d "$atmosphere_date" +%s) -gt $(date -d "10 days ago" +%s) ]]; the
     echo "Atmosphere 发布在十天内，跳过 MissionControl 和 ldn_mitm 的下载."
 else
     # 从 GitHub 获取最新的 MissionControl 发布信息
-    mission_control_info=$(curl -sL https://api.github.com/repos/ndeadly/MissionControl/releases/latest)
-    echo "$mission_control_info" | jq -r '.tag_name' >> ../description.txt
-    # 下载 MissionControl 的最新版本
-    echo "$mission_control_info" | jq -r '.assets[0].browser_download_url' | xargs -I {} curl -sL {} -o MissionControl.zip
+### Fetch latest MissionControl from https://api.github.com/repos/ndeadly/MissionControl/releases/latest
+    curl -sL https://api.github.com/repos/ndeadly/MissionControl/releases/latest \
+      | jq '.tag_name' \
+      | xargs -I {} echo MissionControl {} >> ../description.txt
+    curl -sL https://api.github.com/repos/ndeadly/MissionControl/releases/latest \
+      | jq '.assets' | jq '.[0].browser_download_url' \
+      | xargs -I {} curl -sL {} -o MissionControl.zip
     if [ $? -ne 0 ]; then
-        echo "MissionControl download \033[31m failed\033[0m."
+        echo "MissionControl download\033[31m failed\033[0m."
     else
-        echo "MissionControl download \033[32m success\033[0m."
+        echo "MissionControl download\033[32m success\033[0m."
         unzip -oq MissionControl.zip
         rm MissionControl.zip
     fi
 
     # 从 GitHub 获取最新的 ldn_mitm 发布信息
-    ldn_mitm_info=$(curl -sL https://api.github.com/repos/spacemeowx2/ldn_mitm/releases/latest)
-    echo "$ldn_mitm_info" | jq -r '.tag_name' >> ../description.txt
-    # 下载 ldn_mitm 的最新版本
-    echo "$ldn_mitm_info" | jq -r '.assets[0].browser_download_url' | xargs -I {} curl -sL {} -o ldn_mitm.zip
+    # ### Fetch latest ldn_mitm from https://api.github.com/repos/spacemeowx2/ldn_mitm/releases/latest
+    curl -sL https://api.github.com/repos/spacemeowx2/ldn_mitm/releases/latest \
+      | jq '.tag_name' \
+      | xargs -I {} echo ldn_mitm {} >> ../description.txt
+    curl -sL https://api.github.com/repos/spacemeowx2/ldn_mitm/releases/latest \
+      | jq '.assets' | jq '.[0].browser_download_url' \
+      | xargs -I {} curl -sL {} -o ldn_mitm.zip
     if [ $? -ne 0 ]; then
-        echo "ldn_mitm download \033[31m failed\033[0m."
+        echo "ldn_mitm download\033[31m failed\033[0m."
     else
-        echo "ldn_mitm download \033[32m success\033[0m."
+        echo "ldn_mitm download\033[32m success\033[0m."
         unzip -oq ldn_mitm.zip
         rm ldn_mitm.zip
     fi
