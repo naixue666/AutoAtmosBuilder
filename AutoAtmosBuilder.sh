@@ -74,47 +74,62 @@ else
     unzip -oq hekate.zip
     rm hekate.zip
 fi
+#!/bin/bash
+
 # 获取最新的 Atmosphere 发布信息
 atmosphere_release_info=$(curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases/latest)
+
+# 检查 API 响应是否有效
+if [ -z "$atmosphere_release_info" ]; then
+    echo "无法获取 Atmosphere 的发布信息."
+    exit 1
+fi
+
+# 清理控制字符
+atmosphere_release_info=$(echo "$atmosphere_release_info" | tr -d '\000-\031')
+
 # 提取发布时间
 atmosphere_date=$(echo "$atmosphere_release_info" | jq -r '.published_at')
 
-# 检查 Atmosphere 发布是否在十天内
+# 检查发布时间是否在十天内
 if [[ $(date -d "$atmosphere_date" +%s) -gt $(date -d "10 days ago" +%s) ]]; then
     echo "Atmosphere 发布在十天内，跳过 MissionControl 和 ldn_mitm 的下载."
 else
     # 从 GitHub 获取最新的 MissionControl 发布信息
-### Fetch latest MissionControl from https://api.github.com/repos/ndeadly/MissionControl/releases/latest
     curl -sL https://api.github.com/repos/ndeadly/MissionControl/releases/latest \
       | jq '.tag_name' \
-      | xargs -I {} echo MissionControl {} >> ../description.txt
+      | xargs -I {} echo "MissionControl {}" >> ../description.txt
+
+    # 下载 MissionControl 的最新版本
     curl -sL https://api.github.com/repos/ndeadly/MissionControl/releases/latest \
-      | jq '.assets' | jq '.[0].browser_download_url' \
+      | jq '.assets[0].browser_download_url' \
       | xargs -I {} curl -sL {} -o MissionControl.zip
     if [ $? -ne 0 ]; then
-        echo "MissionControl download\033[31m failed\033[0m."
+        echo "MissionControl download \033[31m failed\033[0m."
     else
-        echo "MissionControl download\033[32m success\033[0m."
+        echo "MissionControl download \033[32m success\033[0m."
         unzip -oq MissionControl.zip
         rm MissionControl.zip
     fi
 
     # 从 GitHub 获取最新的 ldn_mitm 发布信息
-    # ### Fetch latest ldn_mitm from https://api.github.com/repos/spacemeowx2/ldn_mitm/releases/latest
     curl -sL https://api.github.com/repos/spacemeowx2/ldn_mitm/releases/latest \
       | jq '.tag_name' \
-      | xargs -I {} echo ldn_mitm {} >> ../description.txt
+      | xargs -I {} echo "ldn_mitm {}" >> ../description.txt
+
+    # 下载 ldn_mitm 的最新版本
     curl -sL https://api.github.com/repos/spacemeowx2/ldn_mitm/releases/latest \
-      | jq '.assets' | jq '.[0].browser_download_url' \
+      | jq '.assets[0].browser_download_url' \
       | xargs -I {} curl -sL {} -o ldn_mitm.zip
     if [ $? -ne 0 ]; then
-        echo "ldn_mitm download\033[31m failed\033[0m."
+        echo "ldn_mitm download \033[31m failed\033[0m."
     else
-        echo "ldn_mitm download\033[32m success\033[0m."
+        echo "ldn_mitm download \033[32m success\033[0m."
         unzip -oq ldn_mitm.zip
         rm ldn_mitm.zip
     fi
 fi
+
 
 
 # ### Fetch latest MissionControl from https://api.github.com/repos/ndeadly/MissionControl/releases/latest
