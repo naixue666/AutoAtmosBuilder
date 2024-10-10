@@ -794,7 +794,6 @@ StatusMonitor
 sys-con
 tencent-switcher-gui
 Tinfoil-17v3
-Zing HOS16_quickfix
 ENDOFFILE
 
 ### Fetch lastest Zing from https://github.com/tomvita/Zing/releases/latest
