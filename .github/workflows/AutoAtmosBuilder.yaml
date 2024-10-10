@@ -9,7 +9,7 @@ on:
       - 'README.md'
       - 'AutoAtmosBuilder.sh'
   schedule:
-    - cron: 0 0 * * *
+    - cron: '30 23 * * *'  # 每天北京时间7:30（UTC时间23:30）触发
 
 env:
   SCRIPT_SH: AutoAtmosBuilder.sh
@@ -29,10 +29,12 @@ jobs:
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
+        sudo apt-get update
         sudo -E apt install -y jq
     
     - name: "Build & Release"
       run: |
+        set -e  # 出错时终止
         echo "DATE=$(date "+%Y-%m-%d %H:%M:%S")" >> $GITHUB_ENV
         echo "tag_name=$(date +%Y%m%d)" >> $GITHUB_ENV
         chmod +x $SCRIPT_SH
