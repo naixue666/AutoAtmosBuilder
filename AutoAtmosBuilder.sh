@@ -785,7 +785,6 @@ cat >> ../description.txt << ENDOFFILE
 DBI 647 中文版
 EdiZon
 HekateToolbox
-MissionControl
 ovl-sysmodules
 ovlloader
 ovlmenu
