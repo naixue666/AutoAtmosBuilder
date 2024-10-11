@@ -60,10 +60,6 @@ cd SwitchSD
 #     rm atmosphere.zip
 # fi
 # Fetch latest atmosphere from https://github.com/Atmosphere-NX/Atmosphere/releases
-is_prerelease=$(curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases \
-  | jq '.[0].prerelease')
-
-# 无论是否是预发布版，都下载大气层
 curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases \
   | jq '.[0].assets' | jq '.[0].browser_download_url' \
   | xargs -I {} curl -sL {} -o atmosphere.zip
@@ -95,44 +91,64 @@ else
     rm hekate.zip
 fi
 
-# 如果不是预发布版本，下载 MissionControl 和 ldn_mitm
-if [ "$is_prerelease" = "true" ]; then
-    echo "Latest Atmosphere release is a pre-release, skipping MissionControl and ldn_mitm downloads."
-    echo "检测到当前 Atmosphere 版本为预发布版本，已跳过 MissionControl 和 ldn_mitm 的下载步骤。"
-else
-    echo "Detected that the current Atmosphere version is a stable release. Starting the download of MissionControl and ldn_mitm."
-    echo "检测到当前 Atmosphere 版本为正式版本，已开始 MissionControl 和 ldn_mitm 的下载步骤。"
-    # ### Fetch latest MissionControl from https://api.github.com/repos/ndeadly/MissionControl/releases/latest
-    curl -sL https://api.github.com/repos/ndeadly/MissionControl/releases/latest \
-      | jq '.tag_name' \
-      | xargs -I {} echo MissionControl {} >> ../description.txt
-    curl -sL https://api.github.com/repos/ndeadly/MissionControl/releases/latest \
-      | jq '.assets' | jq '.[0].browser_download_url' \
-      | xargs -I {} curl -sL {} -o MissionControl.zip
-    if [ $? -ne 0 ]; then
-        echo "MissionControl download\033[31m failed\033[0m."
-    else
-        echo "MissionControl download\033[32m success\033[0m."
-        unzip -oq MissionControl.zip
-        rm MissionControl.zip
-    fi
 
-    # ### Fetch latest ldn_mitm from https://api.github.com/repos/spacemeowx2/ldn_mitm/releases/latest
-    curl -sL https://api.github.com/repos/spacemeowx2/ldn_mitm/releases/latest \
-      | jq '.tag_name' \
-      | xargs -I {} echo ldn_mitm {} >> ../description.txt
-    curl -sL https://api.github.com/repos/spacemeowx2/ldn_mitm/releases/latest \
-      | jq '.assets' | jq '.[0].browser_download_url' \
-      | xargs -I {} curl -sL {} -o ldn_mitm.zip
+# 定义工具名称
+mission_control="MissionControl"
+ldn_mitm="ldn_mitm"
+
+# 下载函数
+download_tool() {
+    tool_name=$1
+    repo_url=$2
+    zip_file="${tool_name}.zip"
+
+    echo "开始下载 $tool_name ..."
+
+    # 获取最新版本的 tag_name 并写入 description.txt
+    curl -sL "$repo_url/releases/latest" | jq '.tag_name' | xargs -I {} echo "$tool_name {}" >> ../description.txt
+
+    # 下载最新版本的 zip 文件
+    curl -sL "$repo_url/releases/latest" | jq '.assets | .[0].browser_download_url' | xargs -I {} curl -sL {} -o "$zip_file"
+    
     if [ $? -ne 0 ]; then
-        echo "ldn_mitm download\033[31m failed\033[0m."
+        echo "$tool_name download\033[31m failed\033[0m."
     else
-        echo "ldn_mitm download\033[32m success\033[0m."
-        unzip -oq ldn_mitm.zip
-        rm ldn_mitm.zip
+        echo "$tool_name download\033[32m success\033[0m."
+        unzip -oq "$zip_file"  # 解压
+        rm "$zip_file"         # 删除 zip 文件
+    fi
+}
+
+# 获取最新 Atmosphere 版本的信息
+latest_release=$(curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases | jq '.[0]')
+
+# 提取更新时间和预发布状态
+updated_at=$(echo "$latest_release" | jq -r '.updated_at')
+is_prerelease=$(echo "$latest_release" | jq '.prerelease')
+
+# 将更新时间转换为秒数
+updated_at_seconds=$(date -d "$updated_at" +%s)
+current_time_seconds=$(date +%s)
+
+# 计算时间差（秒）
+time_diff=$(( (current_time_seconds - updated_at_seconds) / 86400 ))
+
+# 检查版本状态和发布时间
+if [ "$is_prerelease" = "false" ] && [ $time_diff -ge 10 ]; then
+    echo "检测到当前 Atmosphere 版本为正式版本且发布大于等于 10 天前，已开始下载 $mission_control 和 $ldn_mitm 的步骤。"
+    download_tool "$mission_control" "https://api.github.com/repos/ndeadly/$mission_control"
+    download_tool "$ldn_mitm" "https://api.github.com/repos/spacemeowx2/$ldn_mitm"
+elif [ "$is_prerelease" = "true" ] && [ $time_diff -ge 14 ]; then
+    echo "检测到当前 Atmosphere 版本为预发布版本且发布超过 14 天，已开始下载 $mission_control 和 $ldn_mitm 的步骤。"
+    download_tool "$mission_control" "https://api.github.com/repos/ndeadly/$mission_control"
+    download_tool "$ldn_mitm" "https://api.github.com/repos/spacemeowx2/$ldn_mitm"
+else
+    if [ "$is_prerelease" = "true" ]; then
+        echo "检测到当前 Atmosphere 版本为预发布版本，已跳过 $mission_control 和 $ldn_mitm 的下载步骤。"
+    else
+        echo "最新 Atmosphere 版本发布于 10 天内，无需重新下载 $mission_control 和 $ldn_mitm。"
     fi
 fi
-
 
 # ### Fetch latest MissionControl from https://api.github.com/repos/ndeadly/MissionControl/releases/latest
 # curl -sL https://api.github.com/repos/ndeadly/MissionControl/releases/latest \
