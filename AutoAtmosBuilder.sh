@@ -129,14 +129,14 @@ download_tool() {
 }
 
 # 获取最新 Atmosphere 版本的信息
-latest_release=$(curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases | jq '.[0]')
+latest_release=$(curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases)
 
-# 提取更新时间和预发布状态，过滤控制字符
-updated_at=$(echo "$latest_release" | jq -r '.updated_at | gsub("[\\u0000-\\u001F]"; "")')
-is_prerelease=$(echo "$latest_release" | jq -r '.prerelease | gsub("[\\u0000-\\u001F]"; "")')
+# 直接获取更新时间和预发布状态
+updated_at=$(echo "$latest_release" | jq -r '.[0].updated_at')
+is_prerelease=$(echo "$latest_release" | jq -r '.[0].prerelease')
 
 # 将更新时间转换为秒数
-updated_at_seconds=$(date -d "$updated_at" +%s 2>/dev/null)
+updated_at_seconds=$(date -d "$updated_at" +%s)
 current_time_seconds=$(date +%s)
 
 # 计算时间差（秒）
