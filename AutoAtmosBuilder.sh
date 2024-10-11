@@ -124,26 +124,36 @@ download_tool() {
 }
 
 # 获取最新 Atmosphere 版本的信息
-latest_release=$(curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases | jq '.[0] | gsub("[\\u0000-\\u001F]"; "")')
+latest_release=$(curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases | jq '.[0]')
 
-# 提取更新时间和预发布状态
-updated_at=$(echo "$latest_release" | jq -r '.updated_at')
+# 提取更新时间、发布时间和预发布状态
+updated_at=$(echo "$latest_release" | jq -r '.updated_at | gsub("[\\u0000-\\u001F]"; "")')
+published_at=$(echo "$latest_release" | jq -r '.published_at | gsub("[\\u0000-\\u001F]"; "")')
 is_prerelease=$(echo "$latest_release" | jq -r '.prerelease')
 
-# 将更新时间转换为秒数
-updated_at_seconds=$(date -d "$updated_at" +%s 2>/dev/null)
-
-# 检查时间转换是否成功
-if [ -z "$updated_at_seconds" ]; then
-    echo "错误: 无法获取更新时间，请检查 API 响应。"
+# 检查提取结果
+if [[ -z "$updated_at" || -z "$published_at" ]]; then
+    echo "错误: 无法获取更新时间或发布时间，请检查 API 响应。"
     exit 1
 fi
 
-# 获取当前时间的秒数
-current_time_seconds=$(date +%s)
+# 打印获取的结果
+echo "获取到的更新时间: $updated_at"
+echo "获取到的发布时间: $published_at"
+echo "获取到的预发布状态: $is_prerelease"
 
-# 计算时间差（天）
-time_diff=$(( (current_time_seconds - updated_at_seconds) / 86400 ))
+# 转换时间格式
+updated_at_seconds=$(date -d "$updated_at" +%s 2>/dev/null)
+published_at_seconds=$(date -d "$published_at" +%s 2>/dev/null)
+
+# 检查时间转换
+if [ $? -ne 0 ]; then
+    echo "时间转换失败，请检查更新时间格式。"
+    exit 1
+fi
+
+echo "更新时间（秒数）: $updated_at_seconds"
+echo "发布时间（秒数）: $published_at_seconds"
 
 # 检查版本状态和发布时间
 if [ "$is_prerelease" = "false" ] && [ $time_diff -ge 10 ]; then
