@@ -136,7 +136,15 @@ clean_latest_release=$(echo "$latest_release" | tr -d '\000-\037')
 # 直接获取更新时间和预发布状态
 updated_at=$(echo "$clean_latest_release" | jq -r '.[0].updated_at')
 is_prerelease=$(echo "$clean_latest_release" | jq -r '.[0].prerelease')
+# 调试输出
+echo "获取到的更新时间: $updated_at"
+echo "获取到的预发布状态: $is_prerelease"
 
+# 检查 updated_at 是否为空
+if [ "$updated_at" = "null" ]; then
+    echo "错误: 无法获取更新时间，请检查 API 响应。"
+    exit 1
+fi
 # 将更新时间转换为秒数
 updated_at_seconds=$(date -d "$updated_at" +%s)
 current_time_seconds=$(date +%s)
