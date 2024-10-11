@@ -130,16 +130,18 @@ download_tool() {
 
 # 获取最新 Atmosphere 版本的信息
 latest_release=$(curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases)
+# 清理控制字符
+clean_latest_release=$(echo "$latest_release" | tr -d '\000-\037')
 
-# 直接获取更新时间和预发布状态，过滤控制字符
-updated_at=$(echo "$latest_release" | jq -r '.[0] | gsub("[\\u0000-\\u001F]"; "") | .updated_at')
-is_prerelease=$(echo "$latest_release" | jq -r '.[0] | gsub("[\\u0000-\\u001F]"; "") | .prerelease')
+# 直接获取更新时间和预发布状态
+updated_at=$(echo "$clean_latest_release" | jq -r '.[0].updated_at')
+is_prerelease=$(echo "$clean_latest_release" | jq -r '.[0].prerelease')
 
 # 将更新时间转换为秒数
 updated_at_seconds=$(date -d "$updated_at" +%s)
 current_time_seconds=$(date +%s)
 
-# 计算时间差（秒）
+# 计算时间差（天数）
 time_diff=$(( (current_time_seconds - updated_at_seconds) / 86400 ))
 
 # 检查版本状态和发布时间
