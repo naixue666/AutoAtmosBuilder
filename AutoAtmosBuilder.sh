@@ -131,32 +131,23 @@ download_tool() {
 # 获取最新 Atmosphere 版本的信息
 latest_release=$(curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases)
 
-# 直接获取更新时间和预发布状态
-updated_at=$(echo "$latest_release" | jq -r '.[0].published_at')  # 使用 published_at 代替 updated_at
-is_prerelease=$(echo "$latest_release" | jq -r '.[0].prerelease')
+# 提取更新时间和预发布状态
+updated_at=$(echo "$latest_release" | jq -r '.updated_at')
+is_prerelease=$(echo "$latest_release" | jq -r '.prerelease')
 
-# 调试输出
-echo "获取到的发布时间: $updated_at"
-echo "获取到的预发布状态: $is_prerelease"
-
-# 检查 updated_at 是否为空
-if [ "$updated_at" = "null" ]; then
-    echo "错误: 无法获取发布时间，请检查 API 响应。"
-    exit 1
-fi
-
-# 将发布时间转换为秒数
+# 将更新时间转换为秒数
 updated_at_seconds=$(date -d "$updated_at" +%s 2>/dev/null)
 
-# 检查日期转换是否成功
-if [ $? -ne 0 ]; then
-    echo "错误: 无法将发布时间转换为秒数。"
+# 检查时间转换是否成功
+if [ -z "$updated_at_seconds" ]; then
+    echo "错误: 无法获取更新时间，请检查 API 响应。"
     exit 1
 fi
 
+# 获取当前时间的秒数
 current_time_seconds=$(date +%s)
 
-# 计算时间差（天数）
+# 计算时间差（天）
 time_diff=$(( (current_time_seconds - updated_at_seconds) / 86400 ))
 
 # 检查版本状态和发布时间
