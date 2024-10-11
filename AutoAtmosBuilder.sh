@@ -105,10 +105,10 @@ download_tool() {
     echo "开始下载 $tool_name ..."
 
     # 获取最新版本的 tag_name 并写入 description.txt
-    curl -sL "$repo_url/releases/latest" | jq '.tag_name' | xargs -I {} echo "$tool_name {}" >> ../description.txt
+    curl -sL "$repo_url/releases/latest" | jq -r '.tag_name' | xargs -I {} echo "$tool_name {}" >> ../description.txt
 
     # 下载最新版本的 zip 文件
-    curl -sL "$repo_url/releases/latest" | jq '.assets | .[0].browser_download_url' | xargs -I {} curl -sL {} -o "$zip_file"
+    curl -sL "$repo_url/releases/latest" | jq -r '.assets | .[0].browser_download_url' | xargs -I {} curl -sL {} -o "$zip_file"
     
     if [ $? -ne 0 ]; then
         echo "$tool_name download\033[31m failed\033[0m."
@@ -120,7 +120,7 @@ download_tool() {
 }
 
 # 获取最新 Atmosphere 版本的信息
-latest_release=$(curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases | jq '.[0]')
+latest_release=$(curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases | jq '.[0] | gsub("[\\u0000-\\u001F]"; "")')
 
 # 提取更新时间和预发布状态
 updated_at=$(echo "$latest_release" | jq -r '.updated_at')
@@ -149,6 +149,7 @@ else
         echo "最新 Atmosphere 版本发布于 10 天内，无需重新下载 $mission_control 和 $ldn_mitm。"
     fi
 fi
+
 
 # ### Fetch latest MissionControl from https://api.github.com/repos/ndeadly/MissionControl/releases/latest
 # curl -sL https://api.github.com/repos/ndeadly/MissionControl/releases/latest \
