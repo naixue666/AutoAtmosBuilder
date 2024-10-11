@@ -78,7 +78,7 @@ else
     # 获取最新的Atmosphere版本号并写入description.txt
     curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases \
       | jq '.[0] | .name' \
-      | xargs -I {} echo "Atmosphere version: {}" >> ../description.txt
+      | xargs -I {} echo {} >> ../description.txt
 fi
 ### Fetch latest Hekate + Nyx Chinese from https://github.com/easyworld/hekate/releases/latest
 curl -sL https://api.github.com/repos/easyworld/hekate/releases/latest \
@@ -98,8 +98,10 @@ fi
 # 如果不是预发布版本，下载 MissionControl 和 ldn_mitm
 if [ "$is_prerelease" = "true" ]; then
     echo "Latest Atmosphere release is a pre-release, skipping MissionControl and ldn_mitm downloads."
-    echo "最新的 Atmosphere 版本是预发布版本，跳过 MissionControl 和 ldn_mitm 下载。"
+    echo "检测到当前 Atmosphere 版本为预发布版本，已跳过 MissionControl 和 ldn_mitm 的下载步骤。"
 else
+    echo "Detected that the current Atmosphere version is a stable release. Starting the download of MissionControl and ldn_mitm."
+    echo "检测到当前 Atmosphere 版本为正式版本，已开始 MissionControl 和 ldn_mitm 的下载步骤。"
     # ### Fetch latest MissionControl from https://api.github.com/repos/ndeadly/MissionControl/releases/latest
     curl -sL https://api.github.com/repos/ndeadly/MissionControl/releases/latest \
       | jq '.tag_name' \
