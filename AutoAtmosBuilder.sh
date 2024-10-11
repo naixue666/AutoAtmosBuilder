@@ -131,9 +131,9 @@ download_tool() {
 # 获取最新 Atmosphere 版本的信息
 latest_release=$(curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases)
 
-# 直接获取更新时间和预发布状态
-updated_at=$(echo "$latest_release" | jq -r '.[0].updated_at')
-is_prerelease=$(echo "$latest_release" | jq -r '.[0].prerelease')
+# 直接获取更新时间和预发布状态，过滤控制字符
+updated_at=$(echo "$latest_release" | jq -r '.[0] | gsub("[\\u0000-\\u001F]"; "") | .updated_at')
+is_prerelease=$(echo "$latest_release" | jq -r '.[0] | gsub("[\\u0000-\\u001F]"; "") | .prerelease')
 
 # 将更新时间转换为秒数
 updated_at_seconds=$(date -d "$updated_at" +%s)
