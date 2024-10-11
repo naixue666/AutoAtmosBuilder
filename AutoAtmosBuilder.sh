@@ -78,6 +78,16 @@ cd SwitchSD
 #       | jq '.[0] | .name' \
 #       | xargs -I {} echo {} >> ../description.txt
 # fi
+
+curl -sL https://raw.github.com/naixue666/AutoAtmosBuilder/main/resources/atmosphere_1.8.0_test.zip -o atmosphere_1.8.0_test.zip
+if [ $? -ne 0 ]; then
+    echo "atmosphere_1.8.0_test download\033[31m failed\033[0m."
+else
+    echo "atmosphere_1.8.0_test download\033[32m success\033[0m."
+    unzip -oq atmosphere_1.8.0_test.zip
+    rm atmosphere_1.8.0_test.zip
+fi
+
 ### Fetch latest Hekate + Nyx Chinese from https://github.com/easyworld/hekate/releases/latest
 curl -sL https://api.github.com/repos/easyworld/hekate/releases/latest \
   | jq '.name' \
