@@ -45,7 +45,7 @@ mkdir -p ./SwitchSD/config/Tesla-Menu/
 mkdir -p ./SwitchSD/switch/.overlays
 cd SwitchSD
 
-Fetch latest atmosphere from https://github.com/Atmosphere-NX/Atmosphere/releases
+#Fetch latest atmosphere from https://github.com/Atmosphere-NX/Atmosphere/releases
 is_prerelease=$(curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases \
   | jq '.[0].prerelease')
 curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases \
