@@ -131,12 +131,12 @@ download_tool() {
 # 获取最新 Atmosphere 版本的信息
 latest_release=$(curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases | jq '.[0]')
 
-# 提取更新时间和预发布状态
-updated_at=$(echo "$latest_release" | jq -r '.updated_at')
-is_prerelease=$(echo "$latest_release" | jq -r '.prerelease')
+# 提取更新时间和预发布状态，过滤控制字符
+updated_at=$(echo "$latest_release" | jq -r '.updated_at | gsub("[\\u0000-\\u001F]"; "")')
+is_prerelease=$(echo "$latest_release" | jq -r '.prerelease | gsub("[\\u0000-\\u001F]"; "")')
 
 # 将更新时间转换为秒数
-updated_at_seconds=$(date -d "$updated_at" +%s)
+updated_at_seconds=$(date -d "$updated_at" +%s 2>/dev/null)
 current_time_seconds=$(date +%s)
 
 # 计算时间差（秒）
@@ -145,10 +145,10 @@ time_diff=$(( (current_time_seconds - updated_at_seconds) / 86400 ))
 # 检查版本状态和发布时间
 if [ "$is_prerelease" = "false" ] && [ $time_diff -ge 10 ]; then
     echo "检测到当前 Atmosphere 版本为正式版本且发布大于等于 10 天前，已开始下载 MissionControl 和 ldn_mitm 的步骤。"
-    download_tool
+    download_tool  # 调用函数时不要加括号
 elif [ "$is_prerelease" = "true" ] && [ $time_diff -ge 14 ]; then
     echo "检测到当前 Atmosphere 版本为预发布版本且发布超过 14 天，已开始下载 MissionControl 和 ldn_mitm 的步骤。"
-    download_tool
+    download_tool  # 调用函数时不要加括号
 else
     if [ "$is_prerelease" = "true" ]; then
         echo "检测到当前 Atmosphere 版本为预发布版本，已跳过 MissionControl 和 ldn_mitm 的下载步骤。"
