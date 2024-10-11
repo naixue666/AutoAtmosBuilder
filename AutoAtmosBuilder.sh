@@ -59,7 +59,27 @@ else
     unzip -oq atmosphere.zip
     rm atmosphere.zip
 fi
+# Fetch latest atmosphere from https://github.com/Atmosphere-NX/Atmosphere/releases
+is_prerelease=$(curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases \
+  | jq '.[0].prerelease')
 
+# 无论是否是预发布版，都下载大气层
+curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases \
+  | jq '.[0].assets' | jq '.[0].browser_download_url' \
+  | xargs -I {} curl -sL {} -o atmosphere.zip
+
+if [ $? -ne 0 ]; then
+    echo "atmosphere download\033[31m failed\033[0m."
+else
+    echo "atmosphere download\033[32m success\033[0m."
+    unzip -oq atmosphere.zip
+    rm atmosphere.zip
+
+    # 获取最新的Atmosphere版本号并写入description.txt
+    curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases \
+      | jq '.[0] | .name' \
+      | xargs -I {} echo "Atmosphere version: {}" >> ../description.txt
+fi
 ### Fetch latest Hekate + Nyx Chinese from https://github.com/easyworld/hekate/releases/latest
 curl -sL https://api.github.com/repos/easyworld/hekate/releases/latest \
   | jq '.name' \
@@ -73,6 +93,42 @@ else
     echo "Hekate + Nyx download\033[32m success\033[0m."
     unzip -oq hekate.zip
     rm hekate.zip
+fi
+
+# 如果不是预发布版本，下载 MissionControl 和 ldn_mitm
+if [ "$is_prerelease" = "true" ]; then
+    echo "Latest Atmosphere release is a pre-release, skipping MissionControl and ldn_mitm downloads."
+    echo "最新的 Atmosphere 版本是预发布版本，跳过 MissionControl 和 ldn_mitm 下载。"
+else
+    # ### Fetch latest MissionControl from https://api.github.com/repos/ndeadly/MissionControl/releases/latest
+    curl -sL https://api.github.com/repos/ndeadly/MissionControl/releases/latest \
+      | jq '.tag_name' \
+      | xargs -I {} echo MissionControl {} >> ../description.txt
+    curl -sL https://api.github.com/repos/ndeadly/MissionControl/releases/latest \
+      | jq '.assets' | jq '.[0].browser_download_url' \
+      | xargs -I {} curl -sL {} -o MissionControl.zip
+    if [ $? -ne 0 ]; then
+        echo "MissionControl download\033[31m failed\033[0m."
+    else
+        echo "MissionControl download\033[32m success\033[0m."
+        unzip -oq MissionControl.zip
+        rm MissionControl.zip
+    fi
+
+    # ### Fetch latest ldn_mitm from https://api.github.com/repos/spacemeowx2/ldn_mitm/releases/latest
+    curl -sL https://api.github.com/repos/spacemeowx2/ldn_mitm/releases/latest \
+      | jq '.tag_name' \
+      | xargs -I {} echo ldn_mitm {} >> ../description.txt
+    curl -sL https://api.github.com/repos/spacemeowx2/ldn_mitm/releases/latest \
+      | jq '.assets' | jq '.[0].browser_download_url' \
+      | xargs -I {} curl -sL {} -o ldn_mitm.zip
+    if [ $? -ne 0 ]; then
+        echo "ldn_mitm download\033[31m failed\033[0m."
+    else
+        echo "ldn_mitm download\033[32m success\033[0m."
+        unzip -oq ldn_mitm.zip
+        rm ldn_mitm.zip
+    fi
 fi
 
 
