@@ -93,14 +93,14 @@ fi
 
 
 download_tool() {
-    ### Fetch latest MissionControl from https://api.github.com/repos/ndeadly/MissionControl/releases/latest
+    echo "开始下载 MissionControl ..."
     curl -sL https://api.github.com/repos/ndeadly/MissionControl/releases/latest \
     | jq -r '.tag_name' \
     | xargs -I {} echo "MissionControl {}" >> ../description.txt
 
     curl -sL https://api.github.com/repos/ndeadly/MissionControl/releases/latest \
     | jq -r '.assets[0].browser_download_url' \
-    | xargs -I {} curl -sL {} -o MissionControl.zip
+    | xargs -I {} curl -sL {} -o MissionControl.zip || echo "Error with MissionControl curl"
 
     if [ $? -ne 0 ]; then
         echo "MissionControl download\033[31m failed\033[0m."
@@ -110,14 +110,14 @@ download_tool() {
         rm MissionControl.zip
     fi
 
-    ### Fetch latest ldn_mitm from https://api.github.com/repos/spacemeowx2/ldn_mitm/releases/latest
+    echo "开始下载 ldn_mitm ..."
     curl -sL https://api.github.com/repos/spacemeowx2/ldn_mitm/releases/latest \
     | jq -r '.tag_name' \
     | xargs -I {} echo "ldn_mitm {}" >> ../description.txt
 
     curl -sL https://api.github.com/repos/spacemeowx2/ldn_mitm/releases/latest \
     | jq -r '.assets[0].browser_download_url' \
-    | xargs -I {} curl -sL {} -o ldn_mitm.zip
+    | xargs -I {} curl -sL {} -o ldn_mitm.zip || echo "Error with ldn_mitm curl"
 
     if [ $? -ne 0 ]; then
         echo "ldn_mitm download\033[31m failed\033[0m."
@@ -145,10 +145,10 @@ time_diff=$(( (current_time_seconds - updated_at_seconds) / 86400 ))
 # 检查版本状态和发布时间
 if [ "$is_prerelease" = "false" ] && [ $time_diff -ge 10 ]; then
     echo "检测到当前 Atmosphere 版本为正式版本且发布大于等于 10 天前，已开始下载 MissionControl 和 ldn_mitm 的步骤。"
-    download_tool  
+    download_tool
 elif [ "$is_prerelease" = "true" ] && [ $time_diff -ge 14 ]; then
     echo "检测到当前 Atmosphere 版本为预发布版本且发布超过 14 天，已开始下载 MissionControl 和 ldn_mitm 的步骤。"
-    download_tool  
+    download_tool
 else
     if [ "$is_prerelease" = "true" ]; then
         echo "检测到当前 Atmosphere 版本为预发布版本，已跳过 MissionControl 和 ldn_mitm 的下载步骤。"
@@ -156,6 +156,7 @@ else
         echo "最新 Atmosphere 版本发布于 10 天内，无需重新下载 MissionControl 和 ldn_mitm。"
     fi
 fi
+
 
 
 
