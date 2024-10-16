@@ -51,7 +51,8 @@ is_prerelease=$(curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/r
 curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases \
   | jq '.[0].assets' | jq '.[0].browser_download_url' \
   | xargs -I {} curl -sL {} -o atmosphere.zip
-
+curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases \
+  | jq '.[1].assets' | jq '.[1].browser_download_url' \
 if [ $? -ne 0 ]; then
     echo "atmosphere download\033[31m failed\033[0m."
 else
@@ -87,6 +88,7 @@ else
     echo "Hekate + Nyx download\033[32m success\033[0m."
     unzip -oq hekate.zip
     rm hekate.zip
+    mv fusee.bin ./bootloader/payloads
 fi
 
 # 如果不是预发布版本，下载 MissionControl 和 ldn_mitm
@@ -611,7 +613,6 @@ updater2p=1
 [大气层虚拟系统]
 emummcforce=1
 fss0=atmosphere/package3
-kip1=atmosphere/kips/loader.kip
 icon=bootloader/res/icon_Atmosphere_emunand.bmp
 id=Atm-Emu
 {千叶奈雪自动构建}
@@ -619,7 +620,6 @@ id=Atm-Emu
 [大气层真实系统]
 emummc_force_disable=1
 fss0=atmosphere/package3
-kip1=atmosphere/kips/loader.kip
 icon=bootloader/res/icon_Atmosphere_sysnand.bmp
 id=Atm-Sys
 {千叶奈雪自动构建}
