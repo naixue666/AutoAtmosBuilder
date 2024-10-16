@@ -52,7 +52,8 @@ curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases \
   | jq '.[0].assets' | jq '.[0].browser_download_url' \
   | xargs -I {} curl -sL {} -o atmosphere.zip
 curl -sL https://api.github.com/repos/Atmosphere-NX/Atmosphere/releases \
-  | jq '.[0].assets' | jq '.[1].browser_download_url' \
+  | jq -r '.[0].assets[] | select(.name == "fusee.bin") | .browser_download_url' \
+  | xargs -I {} curl -sL {} -o fusee.bin
 if [ $? -ne 0 ]; then
     echo "atmosphere download\033[31m failed\033[0m."
 else
