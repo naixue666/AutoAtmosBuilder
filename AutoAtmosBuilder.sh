@@ -465,13 +465,14 @@ curl -sL https://api.github.com/repos/zdm65477730/NX-Activity-Log/releases/lates
   | xargs -I {} echo NX-Activity-Log {} >> ../description.txt
 curl -sL https://api.github.com/repos/zdm65477730/NX-Activity-Log/releases/latest \
   | jq '.assets' | jq '.[0].browser_download_url' \
-  | xargs -I {} curl -sL {} -o NX-Activity-Log.zip
+  | xargs -I {} curl -sL {} -o NX-Activity-Log.nro
 if [ $? -ne 0 ]; then
     echo "NX-Activity-Log download\033[31m failed\033[0m."
 else
     echo "NX-Activity-Log download\033[32m success\033[0m."
-    unzip -oq NX-Activity-Log.zip
-    rm NX-Activity-Log.zip
+    # unzip -oq NX-Activity-Log.zip
+    # rm NX-Activity-Log.zip
+    mv NX-Activity-Log.nro ./switch
 fi
 
 ### Fetch lastest NXThemesInstaller from https://github.com/exelix11/SwitchThemeInjector/releases/latest
