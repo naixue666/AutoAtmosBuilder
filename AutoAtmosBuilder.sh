@@ -325,7 +325,7 @@ curl -sL https://api.github.com/repos/xfangfang/wiliwili/releases/latest \
   | jq '.tag_name' \
   | xargs -I {} echo wiliwili {} >> ../description.txt
 curl -sL https://api.github.com/repos/xfangfang/wiliwili/releases/latest \
-  | jq '.assets' | jq '.[8].browser_download_url' \
+  | jq '.assets' | jq '.[9].browser_download_url' \
   | xargs -I {} curl -sL {} -o wiliwili-NintendoSwitch.zip
 if [ $? -ne 0 ]; then
     echo "wiliwili download\033[31m failed\033[0m."
