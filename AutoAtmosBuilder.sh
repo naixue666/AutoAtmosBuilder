@@ -236,7 +236,7 @@ else
     echo "boot.dat-Resources download\033[32m success\033[0m."
 fi
 ### Fetch latest SigPatches.zip from https://raw.github.com/naixue666/naixue_nx_atm_Auto_Script/main/resources/
-curl -sL https://sigmapatches.su/sigpatches.zip -o sigpatches.zip
+curl -sL https://sigmapatches.su/sigpatches.zip?16.10.2024 -o sigpatches.zip
 if [ $? -ne 0 ]; then
     echo "SigPatches download\033[31m failed\033[0m."
 else
